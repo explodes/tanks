@@ -26,6 +26,26 @@ Building release versions:
 
 `make releases`
 
+General requirements:
+---------------------
+
+ - [go-bindata](https://github.com/jteeuwen/go-bindata)
+     - `go get -u github.com/jteeuwen/go-bindata/...`
+ 
+Android requirements:
+---------------------
+
+ - [gomobile](https://github.com/golang/mobile)
+     - `go get golang.org/x/mobile/cmd/gomobile`
+     - `gomobile init # it might take a few minutes`
+     
+Web requirements:
+-----------------
+
+ - [gopherjs](https://github.com/gopherjs/gopherjs)
+     - `go get -u github.com/gopherjs/gopherjs`
+ 
+
 Linux requirements:
 -------------------
 
