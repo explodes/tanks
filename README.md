@@ -10,9 +10,9 @@ Tanks race around screen attempting to lock on a good shot. Tanks fire automatic
 Running
 -------
 
- - Android: `make android`
- - Web: `make web`
- - Linux: `make linux`
+ - Android: `make android` (adb-ready connected Android device required)
+ - Web: `make web` (opens up a browser tab)
+ - Linux: `make linux` (starts the bloodshed pretty quickly, if you have the Linux Requirements)
  
 Info
 ----
