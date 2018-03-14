@@ -5,6 +5,7 @@ TANKS!
 
 Tanks race around screen attempting to lock on a good shot. Tanks fire automatically. Only the strongest will survive.
 
+![Screenshot](https://raw.githubusercontent.com/explodes/go-wo/master/examples/tanks/tanks2.png)
 ![Screenshot](https://raw.githubusercontent.com/explodes/go-wo/master/examples/tanks/tanks.png)
 
 Running
