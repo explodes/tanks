@@ -44,7 +44,10 @@ func init() {
 }
 
 func NewGame() (*Game, error) {
-	loader := tanksutil.NewLoader(res.Asset)
+	if debug {
+		defer tanksutil.LogStart("Game init").End()
+	}
+	loader := tanksutil.NewLoaderDebug(res.Asset, debug)
 	audioContext, err := audio.NewContext(audioSampleRate)
 	if err != nil {
 		return nil, err
@@ -61,11 +64,9 @@ func NewGame() (*Game, error) {
 		audioContext: audioContext,
 	}
 
-	scene, err := NewTitleScene(game)
-	if err != nil {
+	if err := game.SetNewScene(NewTitleScene); err != nil {
 		return nil, err
 	}
-	game.SetScene(scene)
 
 	bgm.SetVolume(0.5)
 	bgm.Play()
@@ -73,7 +74,11 @@ func NewGame() (*Game, error) {
 	return game, nil
 }
 
-func (g *Game) SetNewScene(scene Scene, err error) error {
+func (g *Game) SetNewScene(factory func(*Game) (scene Scene, err error)) error {
+	if debug {
+		defer tanksutil.LogStart("Set New Scene").End()
+	}
+	scene, err := factory(g)
 	if err != nil {
 		return err
 	}

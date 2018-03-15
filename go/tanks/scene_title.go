@@ -73,7 +73,7 @@ func (s *titleScene) Update(dt float64) error {
 	s.time += dt
 
 	if s.g.input.Begin() {
-		return s.g.SetNewScene(NewGameScene(s.g))
+		return s.g.SetNewScene(NewGameScene)
 	}
 
 	return nil
