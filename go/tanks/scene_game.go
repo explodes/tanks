@@ -214,7 +214,7 @@ func (s *gameScene) Update(dt float64) error {
 	case phaseRedVictory:
 		s.victoryTime -= dt
 		if s.victoryTime <= 0 {
-			s.g.SetNewScene(NewTitleScene(s.g))
+			return s.g.SetNewScene(NewTitleScene)
 		}
 	}
 
