@@ -12,6 +12,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	ebiten.SetRunnableInBackground(true)
 	if err := ebiten.Run(game.Update, tanks.ScreenWidth, tanks.ScreenHeight, 1, tanks.Title); err != nil {
 		log.Fatal(err)
 	}
