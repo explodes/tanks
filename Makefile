@@ -14,7 +14,7 @@ clean-build:
 clean: enable-debug clean-res clean-build
 
 res: clean-res
-	cd ./go/tanks/resources; $(GOPATH)/bin/go-bindata -o ../res/bindata.go -pkg res ./...
+	cd ./go/tanks/resources; $(GOPATH)/bin/go-bindata -nocompress -o ../res/bindata.go -pkg res ./...
 
 enable-debug:
 	sed -i.bak 's/debug = false/debug = true/g' ./go/tanks/config.go
