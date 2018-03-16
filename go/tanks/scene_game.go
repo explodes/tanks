@@ -34,6 +34,8 @@ const (
 	tankSpeed             = 185
 	tankWidth, tankHeight = 170 * 3 / 10, 200 * 3 / 10
 
+	tankCollisionScale = 0.75
+
 	victoryMessageDuration = 3
 
 	autoShotPerSecond = 0.5
@@ -364,7 +366,7 @@ func (s *gameScene) behaviorRedHitsBlueBullet(source *tanksutil.Object, dt float
 	if s.phase != phaseBattle {
 		return
 	}
-	sourceBounds := source.Bounds()
+	sourceBounds := source.Bounds().ScaledAtCenter(tankCollisionScale)
 	iter := s.layers.TagIterator(tagBlueBullet)
 	for bullet, ok := iter(); ok; bullet, ok = iter() {
 		if tanksutil.Collision(sourceBounds, bullet.Bounds()) {
@@ -379,7 +381,7 @@ func (s *gameScene) behaviorBlueHitsRedBullet(source *tanksutil.Object, dt float
 	if s.phase != phaseBattle {
 		return
 	}
-	sourceBounds := source.Bounds()
+	sourceBounds := source.Bounds().ScaledAtCenter(tankCollisionScale)
 	iter := s.layers.TagIterator(tagRedBullet)
 	for bullet, ok := iter(); ok; bullet, ok = iter() {
 		if tanksutil.Collision(sourceBounds, bullet.Bounds()) {

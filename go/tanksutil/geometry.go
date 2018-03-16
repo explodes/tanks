@@ -76,3 +76,15 @@ func (r Rect) Center() Vec {
 		r.Min.Y+r.H()/2,
 	)
 }
+
+func (r Rect) ScaledAtCenter(factor float64) Rect {
+	w := r.W()
+	h := r.H()
+	c := r.Center()
+	return R(
+		c.X-factor*w/2,
+		c.Y-factor*h/2,
+		c.X+factor*w/2,
+		c.Y+factor*h/2,
+	)
+}
