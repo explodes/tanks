@@ -5,10 +5,6 @@ import (
 	"log"
 )
 
-func init() {
-	log.SetFlags(0)
-}
-
 func DebugLog(msg string, args ...interface{}) {
 	if debug {
 		Log(msg, args...)
