@@ -6,15 +6,11 @@ package tanks
 
 import (
 	"github.com/hajimehoshi/ebiten"
+	"github.com/hajimehoshi/ebiten/inpututil"
 )
 
-var _ Input = (*inputImpl)(nil)
-
-type inputImpl struct {
-}
-
-func NewInput() Input {
-	return &inputImpl{}
+func (i *inputImpl) ToggleFullscreen() bool {
+	return inpututil.IsKeyJustPressed(ebiten.KeyF)
 }
 
 func (i *inputImpl) Begin() bool {

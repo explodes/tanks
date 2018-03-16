@@ -2,16 +2,17 @@ package tanks
 
 import "github.com/hajimehoshi/ebiten"
 
-var _ Input = (*inputImpl)(nil)
-
-type inputImpl struct {
+func (i *inputImpl) ToggleFullscreen() bool {
+	return false
 }
 
-func NewInput() Input {
-	return &inputImpl{}
+func (i *inputImpl) Exit() bool {
+	return false
 }
 
-func (i *inputImpl) Begin() bool { return len(ebiten.Touches()) > 0 }
+func (i *inputImpl) Begin() bool {
+	return len(ebiten.Touches()) > 0
+}
 
 func (i *inputImpl) BlueRotate() bool {
 	for _, touch := range ebiten.Touches() {

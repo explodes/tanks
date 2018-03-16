@@ -4,6 +4,8 @@ import (
 	"math/rand"
 	"time"
 
+	"errors"
+
 	"github.com/explodes/tanks/go/tanks/res"
 	"github.com/explodes/tanks/go/tanksutil"
 	"github.com/hajimehoshi/ebiten"
@@ -20,6 +22,8 @@ const (
 
 var (
 	ScreenBounds = tanksutil.R(0, 0, ScreenWidth, ScreenHeight)
+
+	regularTermination = errors.New("goodbye!")
 )
 
 type Game struct {
@@ -29,6 +33,7 @@ type Game struct {
 	scene        Scene
 	input        Input
 	audioContext *audio.Context
+	fullscreen   bool
 
 	redScore  int
 	blueScore int
@@ -94,6 +99,15 @@ func (g *Game) SetScene(scene Scene) error {
 func (g *Game) Update(image *ebiten.Image) error {
 	dt := g.stopwatch.TimeDelta()
 	g.time += dt
+
+	if g.input.Exit() {
+		return regularTermination
+	}
+
+	if g.input.ToggleFullscreen() {
+		g.fullscreen = !g.fullscreen
+		ebiten.SetFullscreen(g.fullscreen)
+	}
 
 	if g.scene != nil {
 		if err := g.scene.Update(dt); err != nil {
