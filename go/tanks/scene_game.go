@@ -31,7 +31,7 @@ const (
 
 const (
 	tankRotatesPerSecond  = 0.5
-	tankSpeed             = 185
+	tankSpeed             = 215
 	tankWidth, tankHeight = 170 * 3 / 10, 200 * 3 / 10
 
 	tankCollisionScale = 0.75
