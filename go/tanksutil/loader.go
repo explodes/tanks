@@ -18,23 +18,36 @@ import (
 
 type AssetFunc func(name string) ([]byte, error)
 
-type Loader struct {
+type Loader interface {
+	Reader(name string) (io.Reader, error)
+	ReadCloser(name string) (audio.ReadSeekCloser, error)
+	Image(name string) (image.Image, error)
+	EbitenImage(name string, filter ebiten.Filter) (*ebiten.Image, error)
+	Font(name string) (*truetype.Font, error)
+	Face(name string, size float64) (font.Face, error)
+	SFX(context *audio.Context, fmt, name string) (AudioPlayer, error)
+	AudioLoop(context *audio.Context, fmt, name string) (*audio.Player, error)
+}
+
+var _ Loader = (*loaderImpl)(nil)
+
+type loaderImpl struct {
 	bytes AssetFunc
 	debug bool
 }
 
-func NewLoader(assets AssetFunc) *Loader {
+func NewLoader(assets AssetFunc) Loader {
 	return NewLoaderDebug(assets, false)
 }
 
-func NewLoaderDebug(assets AssetFunc, debug bool) *Loader {
-	return &Loader{
+func NewLoaderDebug(assets AssetFunc, debug bool) Loader {
+	return &loaderImpl{
 		bytes: assets,
 		debug: debug,
 	}
 }
 
-func (l *Loader) Reader(name string) (io.Reader, error) {
+func (l *loaderImpl) Reader(name string) (io.Reader, error) {
 	b, err := l.bytes(name)
 	if err != nil {
 		return nil, err
@@ -50,7 +63,7 @@ func (readSeekCloserImpl) Close() error {
 	return nil
 }
 
-func (l *Loader) ReadCloser(name string) (audio.ReadSeekCloser, error) {
+func (l *loaderImpl) ReadCloser(name string) (audio.ReadSeekCloser, error) {
 	b, err := l.bytes(name)
 	if err != nil {
 		return nil, err
@@ -59,7 +72,7 @@ func (l *Loader) ReadCloser(name string) (audio.ReadSeekCloser, error) {
 	return &readSeekCloserImpl{Reader: reader}, nil
 }
 
-func (l *Loader) getImage(name string) (image.Image, error) {
+func (l *loaderImpl) getImage(name string) (image.Image, error) {
 	r, err := l.Reader(name)
 	if err != nil {
 		return nil, err
@@ -68,14 +81,14 @@ func (l *Loader) getImage(name string) (image.Image, error) {
 	return src, err
 }
 
-func (l *Loader) Image(name string) (image.Image, error) {
+func (l *loaderImpl) Image(name string) (image.Image, error) {
 	if l.debug {
 		defer LogDuration("Image for %s", name).End()
 	}
 	return l.getImage(name)
 }
 
-func (l *Loader) EbitenImage(name string, filter ebiten.Filter) (*ebiten.Image, error) {
+func (l *loaderImpl) EbitenImage(name string, filter ebiten.Filter) (*ebiten.Image, error) {
 	if l.debug {
 		defer LogDuration("EbitenImage for %s", name).End()
 	}
@@ -86,10 +99,7 @@ func (l *Loader) EbitenImage(name string, filter ebiten.Filter) (*ebiten.Image, 
 	return ebiten.NewImageFromImage(src, filter)
 }
 
-func (l *Loader) Font(name string) (*truetype.Font, error) {
-	if l.debug {
-		defer LogDuration("Font for %s", name).End()
-	}
+func (l *loaderImpl) font(name string) (*truetype.Font, error) {
 	b, err := l.bytes(name)
 	if err != nil {
 		return nil, err
@@ -97,15 +107,18 @@ func (l *Loader) Font(name string) (*truetype.Font, error) {
 	return truetype.Parse(b)
 }
 
-func (l *Loader) Face(name string, size float64) (font.Face, error) {
+func (l *loaderImpl) Font(name string) (*truetype.Font, error) {
+	if l.debug {
+		defer LogDuration("Font for %s", name).End()
+	}
+	return l.font(name)
+}
+
+func (l *loaderImpl) Face(name string, size float64) (font.Face, error) {
 	if l.debug {
 		defer LogDuration("Face for %s", name).End()
 	}
-	b, err := l.bytes(name)
-	if err != nil {
-		return nil, err
-	}
-	f, err := truetype.Parse(b)
+	f, err := l.font(name)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +134,7 @@ type readSeekCloseLengther interface {
 	Length() int64
 }
 
-func (l *Loader) audioStream(context *audio.Context, fmt, name string) (readSeekCloseLengther, error) {
+func (l *loaderImpl) audioStream(context *audio.Context, fmt, name string) (readSeekCloseLengther, error) {
 	rsc, err := l.ReadCloser(name)
 	if err != nil {
 		return nil, err
@@ -149,7 +162,7 @@ type audioReplayer struct {
 	volume     float64
 }
 
-func NewPlayer(context *audio.Context, stream []byte) AudioPlayer {
+func newPlayer(context *audio.Context, stream []byte) AudioPlayer {
 	return &audioReplayer{
 		stream:  stream,
 		context: context,
@@ -182,7 +195,7 @@ func (a *audioReplayer) SetVolume(v float64) {
 	a.volume = v
 }
 
-func (l *Loader) SFX(context *audio.Context, fmt, name string) (AudioPlayer, error) {
+func (l *loaderImpl) SFX(context *audio.Context, fmt, name string) (AudioPlayer, error) {
 	if l.debug {
 		defer LogDuration("SFX for %s", name).End()
 	}
@@ -194,10 +207,10 @@ func (l *Loader) SFX(context *audio.Context, fmt, name string) (AudioPlayer, err
 	if err != nil {
 		return nil, err
 	}
-	return NewPlayer(context, streamBytes), nil
+	return newPlayer(context, streamBytes), nil
 }
 
-func (l *Loader) AudioLoop(context *audio.Context, fmt, name string) (*audio.Player, error) {
+func (l *loaderImpl) AudioLoop(context *audio.Context, fmt, name string) (*audio.Player, error) {
 	if l.debug {
 		defer LogDuration("AudioLoop for %s", name).End()
 	}

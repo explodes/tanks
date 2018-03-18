@@ -28,7 +28,7 @@ var (
 
 type Game struct {
 	time         float64
-	loader       *tanksutil.Loader
+	loader       tanksutil.Loader
 	stopwatch    tanksutil.Stopwatch
 	scene        Scene
 	input        Input
@@ -52,7 +52,7 @@ func NewGame() (*Game, error) {
 	if debug {
 		defer tanksutil.LogStart("Game init").End()
 	}
-	loader := tanksutil.NewLoaderDebug(res.Asset, debug)
+	loader := tanksutil.NewCachedLoader(tanksutil.NewLoaderDebug(res.Asset, debug))
 	audioContext, err := audio.NewContext(audioSampleRate)
 	if err != nil {
 		return nil, err
