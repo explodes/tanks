@@ -9,5 +9,6 @@ var instructionsStrings = []string{
 	"Red will rotate the tank with (L).",
 	"Your tanks will automatically fire.",
 	"Last one standing wins.",
-	"Press space to begin",
+	"Press (space) to begin.",
+	"(F) Fullscreen (M) Mute",
 }

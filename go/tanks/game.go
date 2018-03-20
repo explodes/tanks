@@ -18,6 +18,8 @@ const (
 	ScreenHeight = 432
 
 	audioSampleRate = 44100
+
+	bgmVolume = 0.5
 )
 
 var (
@@ -33,10 +35,14 @@ type Game struct {
 	scene        Scene
 	input        Input
 	audioContext *audio.Context
-	fullscreen   bool
+
+	fullscreen bool
+	muted      bool
 
 	redScore  int
 	blueScore int
+
+	bgm *audio.Player
 }
 
 type Scene interface {
@@ -67,13 +73,14 @@ func NewGame() (*Game, error) {
 		stopwatch:    tempura.NewStopwatch(),
 		input:        NewInput(),
 		audioContext: audioContext,
+		bgm:          bgm,
 	}
 
 	if err := game.SetNewScene(NewTitleScene); err != nil {
 		return nil, err
 	}
 
-	bgm.SetVolume(0.5)
+	bgm.SetVolume(bgmVolume)
 	bgm.Play()
 
 	return game, nil
@@ -107,6 +114,15 @@ func (g *Game) Update(image *ebiten.Image) error {
 	if g.input.ToggleFullscreen() {
 		g.fullscreen = !g.fullscreen
 		ebiten.SetFullscreen(g.fullscreen)
+	}
+
+	if g.input.ToggleMute() {
+		g.muted = !g.muted
+		if g.muted {
+			g.bgm.SetVolume(0)
+		} else {
+			g.bgm.SetVolume(bgmVolume)
+		}
 	}
 
 	if g.scene != nil {

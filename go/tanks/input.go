@@ -8,6 +8,7 @@ type Input interface {
 
 type GlobalInput interface {
 	ToggleFullscreen() bool
+	ToggleMute() bool
 	Exit() bool
 }
 

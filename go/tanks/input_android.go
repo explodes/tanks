@@ -6,6 +6,10 @@ func (i *inputImpl) ToggleFullscreen() bool {
 	return false
 }
 
+func (i *inputImpl) ToggleMute() bool {
+	return false
+}
+
 func (i *inputImpl) Exit() bool {
 	return false
 }

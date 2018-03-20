@@ -13,6 +13,10 @@ func (i *inputImpl) ToggleFullscreen() bool {
 	return inpututil.IsKeyJustPressed(ebiten.KeyF)
 }
 
+func (i *inputImpl) ToggleMute() bool {
+	return inpututil.IsKeyJustPressed(ebiten.KeyM)
+}
+
 func (i *inputImpl) Begin() bool {
 	return ebiten.IsKeyPressed(ebiten.KeySpace)
 }
