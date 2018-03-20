@@ -13,7 +13,7 @@ import (
 
 	"strconv"
 
-	"github.com/explodes/tanks/go/tanksutil"
+	"github.com/explodes/tempura"
 	"golang.org/x/image/colornames"
 	"golang.org/x/image/font"
 )
@@ -57,7 +57,7 @@ const (
 )
 
 var (
-	tankRotateOffset = tanksutil.DegToRad(-90)
+	tankRotateOffset = tempura.DegToRad(-90)
 
 	winningMessages = []string{
 		"%s has become the champion",
@@ -79,21 +79,21 @@ type gameScene struct {
 	phase Phase
 
 	messageFace font.Face
-	message     *tanksutil.Text
+	message     *tempura.Text
 
-	cannonSFX tanksutil.AudioPlayer
+	cannonSFX tempura.AudioPlayer
 
-	bluePlayer *tanksutil.Object
-	redPlayer  *tanksutil.Object
+	bluePlayer *tempura.Object
+	redPlayer  *tempura.Object
 
 	victoryTime float64
 
-	shot tanksutil.Drawable
+	shot tempura.Drawable
 
 	blueShotDelay float64
 	redShotDelay  float64
 
-	layers tanksutil.Layers
+	layers tempura.Layers
 }
 
 func NewGameScene(game *Game) (Scene, error) {
@@ -111,7 +111,7 @@ func NewGameScene(game *Game) (Scene, error) {
 	if err != nil {
 		return nil, err
 	}
-	shotDrawable := tanksutil.NewImageDrawable(shotImage)
+	shotDrawable := tempura.NewImageDrawable(shotImage)
 
 	dirtImage, err := game.loader.EbitenImage("images/dirt.jpg", ebiten.FilterDefault)
 	if err != nil {
@@ -122,8 +122,8 @@ func NewGameScene(game *Game) (Scene, error) {
 	if err != nil {
 		return nil, err
 	}
-	blueTankDrawable := tanksutil.NewImageDrawableFrames(tanksImage, tanksutil.R(0, 0, 148, 333./2))
-	redTankDrawable := tanksutil.NewImageDrawableFrames(tanksImage, tanksutil.R(0, 333./2, 148, 333))
+	blueTankDrawable := tempura.NewImageDrawableFrames(tanksImage, tempura.R(0, 0, 148, 333./2))
+	redTankDrawable := tempura.NewImageDrawableFrames(tanksImage, tempura.R(0, 333./2, 148, 333))
 
 	s := &gameScene{
 		g:           game,
@@ -131,27 +131,27 @@ func NewGameScene(game *Game) (Scene, error) {
 		cannonSFX:   cannonSFX,
 		messageFace: messageFace,
 		shot:        shotDrawable,
-		layers:      tanksutil.NewLayers(numLayers),
+		layers:      tempura.NewLayers(numLayers),
 	}
 
-	rotBlue := tanksutil.DegToRad(135)
-	rotRed := tanksutil.DegToRad(-45)
+	rotBlue := tempura.DegToRad(135)
+	rotRed := tempura.DegToRad(-45)
 	if rand.Float64() < 0.5 {
 		rotBlue, rotRed = rotRed, rotBlue
 	}
 
-	bluePlayer := &tanksutil.Object{
+	bluePlayer := &tempura.Object{
 		Tag:       tagBluePlayer,
-		Pos:       tanksutil.V(100, ScreenHeight/2-tankHeight/2),
-		Size:      tanksutil.V(tankWidth, tankHeight),
+		Pos:       tempura.V(100, ScreenHeight/2-tankHeight/2),
+		Size:      tempura.V(tankWidth, tankHeight),
 		Drawable:  blueTankDrawable,
 		Rot:       rotBlue,
 		RotNormal: tankRotateOffset,
 
-		Steps: tanksutil.MakeBehaviors(
+		Steps: tempura.MakeBehaviors(
 			s.behaviorBlueRotateOnButton,
 		),
-		PostSteps: tanksutil.MakeBehaviors(
+		PostSteps: tempura.MakeBehaviors(
 			s.reflectInBounds,
 			s.behaviorBlueHitsRedBullet,
 		),
@@ -159,18 +159,18 @@ func NewGameScene(game *Game) (Scene, error) {
 	s.bluePlayer = bluePlayer
 	s.layers[layerTanks].Add(bluePlayer)
 
-	redPlayer := &tanksutil.Object{
+	redPlayer := &tempura.Object{
 		Tag:       tagRedPlayer,
-		Pos:       tanksutil.V(ScreenWidth-100-tankWidth, ScreenHeight/2-tankHeight/2),
-		Size:      tanksutil.V(tankWidth, tankHeight),
+		Pos:       tempura.V(ScreenWidth-100-tankWidth, ScreenHeight/2-tankHeight/2),
+		Size:      tempura.V(tankWidth, tankHeight),
 		Drawable:  redTankDrawable,
 		Rot:       rotRed,
 		RotNormal: tankRotateOffset,
 
-		Steps: tanksutil.MakeBehaviors(
+		Steps: tempura.MakeBehaviors(
 			s.behaviorRedRotateOnButton,
 		),
-		PostSteps: tanksutil.MakeBehaviors(
+		PostSteps: tempura.MakeBehaviors(
 			s.reflectInBounds,
 			s.behaviorRedHitsBlueBullet,
 		),
@@ -178,10 +178,10 @@ func NewGameScene(game *Game) (Scene, error) {
 	s.redPlayer = redPlayer
 	s.layers[layerTanks].Add(redPlayer)
 
-	dirt := &tanksutil.Object{
+	dirt := &tempura.Object{
 		Tag:      tagBackground,
-		Size:     tanksutil.V(ScreenWidth, ScreenHeight),
-		Drawable: tanksutil.NewImageDrawable(dirtImage),
+		Size:     tempura.V(ScreenWidth, ScreenHeight),
+		Drawable: tempura.NewImageDrawable(dirtImage),
 	}
 	s.layers[layerBackground].Add(dirt)
 
@@ -205,7 +205,7 @@ func (s *gameScene) Update(dt float64) error {
 		if countdownColorIndex < 0 {
 			countdownColorIndex = 0
 		}
-		text := tanksutil.NewText(s.messageFace, countdownColors[countdownColorIndex], strconv.Itoa(seconds))
+		text := tempura.NewText(s.messageFace, countdownColors[countdownColorIndex], strconv.Itoa(seconds))
 		s.message = &text
 	case phaseBattle:
 		s.blueShotDelay += dt
@@ -236,42 +236,42 @@ func (s *gameScene) Draw(image *ebiten.Image) {
 		if s.message == nil {
 			return
 		}
-		s.message.Draw(image, ScreenWidth/2, ScreenHeight/2+s.message.H/2, tanksutil.AlignCenter)
+		s.message.Draw(image, ScreenWidth/2, ScreenHeight/2+s.message.H/2, tempura.AlignCenter)
 	}
 }
 
-func (s *gameScene) reflectInBounds(source *tanksutil.Object, dt float64) {
+func (s *gameScene) reflectInBounds(source *tempura.Object, dt float64) {
 	objBounds := source.Bounds()
 	switch {
 	case objBounds.Min.X <= 0:
-		source.Velocity = tanksutil.V(-source.Velocity.X, source.Velocity.Y)
+		source.Velocity = tempura.V(-source.Velocity.X, source.Velocity.Y)
 		source.Rot = source.Velocity.Angle()
-		source.Pos = tanksutil.V(0, source.Pos.Y)
+		source.Pos = tempura.V(0, source.Pos.Y)
 	case objBounds.Max.X >= ScreenWidth:
-		source.Velocity = tanksutil.V(-source.Velocity.X, source.Velocity.Y)
+		source.Velocity = tempura.V(-source.Velocity.X, source.Velocity.Y)
 		source.Rot = source.Velocity.Angle()
-		source.Pos = tanksutil.V(ScreenWidth-source.Size.X, source.Pos.Y)
+		source.Pos = tempura.V(ScreenWidth-source.Size.X, source.Pos.Y)
 	}
 	switch {
 	case objBounds.Min.Y <= 0:
-		source.Velocity = tanksutil.V(source.Velocity.X, -source.Velocity.Y)
+		source.Velocity = tempura.V(source.Velocity.X, -source.Velocity.Y)
 		source.Rot = source.Velocity.Angle()
-		source.Pos = tanksutil.V(source.Pos.X, 0)
+		source.Pos = tempura.V(source.Pos.X, 0)
 	case objBounds.Max.Y >= ScreenHeight:
-		source.Velocity = tanksutil.V(source.Velocity.X, -source.Velocity.Y)
+		source.Velocity = tempura.V(source.Velocity.X, -source.Velocity.Y)
 		source.Rot = source.Velocity.Angle()
-		source.Pos = tanksutil.V(source.Pos.X, ScreenHeight-source.Size.Y)
+		source.Pos = tempura.V(source.Pos.X, ScreenHeight-source.Size.Y)
 	}
 }
 
-func (s *gameScene) behaviorBlueRotateOnButton(source *tanksutil.Object, dt float64) {
+func (s *gameScene) behaviorBlueRotateOnButton(source *tempura.Object, dt float64) {
 	if s.g.input.BlueRotate() {
 		// rotate
-		source.Rot += tanksutil.DegToRad(-tankRotatesPerSecond*360) * dt
+		source.Rot += tempura.DegToRad(-tankRotatesPerSecond*360) * dt
 		s.blueShotDelay = 0
 	} else {
-		source.Velocity = tanksutil.V(tankSpeed, 0).Rotated(source.Rot)
-		tanksutil.Movement(source, dt)
+		source.Velocity = tempura.V(tankSpeed, 0).Rotated(source.Rot)
+		tempura.Movement(source, dt)
 		if s.blueShotDelay > 1.0/autoShotPerSecond {
 			s.spawnBlueShots()
 			s.blueShotDelay = 0
@@ -279,14 +279,14 @@ func (s *gameScene) behaviorBlueRotateOnButton(source *tanksutil.Object, dt floa
 	}
 }
 
-func (s *gameScene) behaviorRedRotateOnButton(source *tanksutil.Object, dt float64) {
+func (s *gameScene) behaviorRedRotateOnButton(source *tempura.Object, dt float64) {
 	if s.g.input.RedRotate() {
 		// rotate
-		source.Rot += tanksutil.DegToRad(-tankRotatesPerSecond*360) * dt
+		source.Rot += tempura.DegToRad(-tankRotatesPerSecond*360) * dt
 		s.redShotDelay = 0
 	} else {
-		source.Velocity = tanksutil.V(tankSpeed, 0).Rotated(source.Rot)
-		tanksutil.Movement(source, dt)
+		source.Velocity = tempura.V(tankSpeed, 0).Rotated(source.Rot)
+		tempura.Movement(source, dt)
 		if s.redShotDelay > 1.0/autoShotPerSecond {
 			s.spawnRedShots()
 			s.redShotDelay = 0
@@ -297,32 +297,32 @@ func (s *gameScene) behaviorRedRotateOnButton(source *tanksutil.Object, dt float
 func (s *gameScene) spawnBlueShots() {
 
 	bounds := s.bluePlayer.Bounds()
-	pos1 := bounds.Center().Add(tanksutil.V(bounds.W()/2, 2).Rotated(s.bluePlayer.Rot))
-	pos2 := bounds.Center().Add(tanksutil.V(bounds.W()/2, -8).Rotated(s.bluePlayer.Rot))
+	pos1 := bounds.Center().Add(tempura.V(bounds.W()/2, 2).Rotated(s.bluePlayer.Rot))
+	pos2 := bounds.Center().Add(tempura.V(bounds.W()/2, -8).Rotated(s.bluePlayer.Rot))
 
-	blueBullet1 := &tanksutil.Object{
+	blueBullet1 := &tempura.Object{
 		Tag:      tagBlueBullet,
 		Pos:      pos1,
-		Size:     tanksutil.V(8, 8),
+		Size:     tempura.V(8, 8),
 		Drawable: s.shot,
-		Velocity: tanksutil.V(bulletSpeed, 0).Rotated(s.bluePlayer.Rot),
-		Steps: tanksutil.MakeBehaviors(
-			tanksutil.Movement,
+		Velocity: tempura.V(bulletSpeed, 0).Rotated(s.bluePlayer.Rot),
+		Steps: tempura.MakeBehaviors(
+			tempura.Movement,
 		),
-		PostSteps: tanksutil.MakeBehaviors(
+		PostSteps: tempura.MakeBehaviors(
 			s.behaviorRemoveOutOfBounds,
 		),
 	}
-	blueBullet2 := &tanksutil.Object{
+	blueBullet2 := &tempura.Object{
 		Tag:      tagBlueBullet,
 		Pos:      pos2,
-		Size:     tanksutil.V(8, 8),
+		Size:     tempura.V(8, 8),
 		Drawable: s.shot,
-		Velocity: tanksutil.V(bulletSpeed, 0).Rotated(s.bluePlayer.Rot),
-		Steps: tanksutil.MakeBehaviors(
-			tanksutil.Movement,
+		Velocity: tempura.V(bulletSpeed, 0).Rotated(s.bluePlayer.Rot),
+		Steps: tempura.MakeBehaviors(
+			tempura.Movement,
 		),
-		PostSteps: tanksutil.MakeBehaviors(
+		PostSteps: tempura.MakeBehaviors(
 			s.behaviorRemoveOutOfBounds,
 		),
 	}
@@ -335,19 +335,19 @@ func (s *gameScene) spawnBlueShots() {
 func (s *gameScene) spawnRedShots() {
 
 	bounds := s.redPlayer.Bounds()
-	offset := tanksutil.V(bounds.H()/2, -8).Rotated(s.redPlayer.Rot)
+	offset := tempura.V(bounds.H()/2, -8).Rotated(s.redPlayer.Rot)
 	pos := bounds.Center().Add(offset)
 
-	redBullet := &tanksutil.Object{
+	redBullet := &tempura.Object{
 		Tag:      tagRedBullet,
 		Pos:      pos,
-		Size:     tanksutil.V(14, 14),
+		Size:     tempura.V(14, 14),
 		Drawable: s.shot,
-		Velocity: tanksutil.V(bulletSpeed, 0).Rotated(s.redPlayer.Rot),
-		Steps: tanksutil.MakeBehaviors(
-			tanksutil.Movement,
+		Velocity: tempura.V(bulletSpeed, 0).Rotated(s.redPlayer.Rot),
+		Steps: tempura.MakeBehaviors(
+			tempura.Movement,
 		),
-		PostSteps: tanksutil.MakeBehaviors(
+		PostSteps: tempura.MakeBehaviors(
 			s.behaviorRemoveOutOfBounds,
 		),
 	}
@@ -356,20 +356,20 @@ func (s *gameScene) spawnRedShots() {
 	s.cannonSFX.Play()
 }
 
-func (s *gameScene) behaviorRemoveOutOfBounds(source *tanksutil.Object, dt float64) {
-	if !tanksutil.Collision(source.Bounds(), ScreenBounds) {
+func (s *gameScene) behaviorRemoveOutOfBounds(source *tempura.Object, dt float64) {
+	if !tempura.Collision(source.Bounds(), ScreenBounds) {
 		s.layers[layerBullets].Remove(source)
 	}
 }
 
-func (s *gameScene) behaviorRedHitsBlueBullet(source *tanksutil.Object, dt float64) {
+func (s *gameScene) behaviorRedHitsBlueBullet(source *tempura.Object, dt float64) {
 	if s.phase != phaseBattle {
 		return
 	}
 	sourceBounds := source.Bounds().ScaledAtCenter(tankCollisionScale)
 	iter := s.layers.TagIterator(tagBlueBullet)
 	for bullet, ok := iter(); ok; bullet, ok = iter() {
-		if tanksutil.Collision(sourceBounds, bullet.Bounds()) {
+		if tempura.Collision(sourceBounds, bullet.Bounds()) {
 			s.g.blueScore++
 			s.phase = phaseBlueVictory
 			s.onVictory("Blue", colornames.Cadetblue)
@@ -378,14 +378,14 @@ func (s *gameScene) behaviorRedHitsBlueBullet(source *tanksutil.Object, dt float
 	}
 }
 
-func (s *gameScene) behaviorBlueHitsRedBullet(source *tanksutil.Object, dt float64) {
+func (s *gameScene) behaviorBlueHitsRedBullet(source *tempura.Object, dt float64) {
 	if s.phase != phaseBattle {
 		return
 	}
 	sourceBounds := source.Bounds().ScaledAtCenter(tankCollisionScale)
 	iter := s.layers.TagIterator(tagRedBullet)
 	for bullet, ok := iter(); ok; bullet, ok = iter() {
-		if tanksutil.Collision(sourceBounds, bullet.Bounds()) {
+		if tempura.Collision(sourceBounds, bullet.Bounds()) {
 			s.g.redScore++
 			s.phase = phaseRedVictory
 			s.onVictory("Red", colornames.Indianred)
@@ -400,6 +400,6 @@ func (s *gameScene) onVictory(winner string, textColor color.Color) {
 	saying := winningMessages[rand.Intn(len(winningMessages))]
 	victoryMessage := fmt.Sprintf(saying, winner)
 
-	text := tanksutil.NewText(s.messageFace, textColor, victoryMessage)
+	text := tempura.NewText(s.messageFace, textColor, victoryMessage)
 	s.message = &text
 }

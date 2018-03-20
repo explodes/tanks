@@ -7,7 +7,7 @@ import (
 	"errors"
 
 	"github.com/explodes/tanks/go/tanks/res"
-	"github.com/explodes/tanks/go/tanksutil"
+	"github.com/explodes/tempura"
 	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/audio"
 )
@@ -21,15 +21,15 @@ const (
 )
 
 var (
-	ScreenBounds = tanksutil.R(0, 0, ScreenWidth, ScreenHeight)
+	ScreenBounds = tempura.R(0, 0, ScreenWidth, ScreenHeight)
 
 	regularTermination = errors.New("goodbye!")
 )
 
 type Game struct {
 	time         float64
-	loader       tanksutil.Loader
-	stopwatch    tanksutil.Stopwatch
+	loader       tempura.Loader
+	stopwatch    tempura.Stopwatch
 	scene        Scene
 	input        Input
 	audioContext *audio.Context
@@ -50,9 +50,9 @@ func init() {
 
 func NewGame() (*Game, error) {
 	if debug {
-		defer tanksutil.LogStart("Game init").End()
+		defer tempura.LogStart("Game init").End()
 	}
-	loader := tanksutil.NewCachedLoader(tanksutil.NewLoaderDebug(res.Asset, debug))
+	loader := tempura.NewCachedLoader(tempura.NewLoaderDebug(res.Asset, debug))
 	audioContext, err := audio.NewContext(audioSampleRate)
 	if err != nil {
 		return nil, err
@@ -64,7 +64,7 @@ func NewGame() (*Game, error) {
 
 	game := &Game{
 		loader:       loader,
-		stopwatch:    tanksutil.NewStopwatch(),
+		stopwatch:    tempura.NewStopwatch(),
 		input:        NewInput(),
 		audioContext: audioContext,
 	}
@@ -81,7 +81,7 @@ func NewGame() (*Game, error) {
 
 func (g *Game) SetNewScene(factory func(*Game) (scene Scene, err error)) error {
 	if debug {
-		defer tanksutil.LogStart("Set New Scene").End()
+		defer tempura.LogStart("Set New Scene").End()
 	}
 	scene, err := factory(g)
 	if err != nil {
