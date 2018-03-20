@@ -373,6 +373,7 @@ func (s *gameScene) behaviorRedHitsBlueBullet(source *tanksutil.Object, dt float
 			s.g.blueScore++
 			s.phase = phaseBlueVictory
 			s.onVictory("Blue", colornames.Cadetblue)
+			break
 		}
 	}
 }
@@ -388,6 +389,7 @@ func (s *gameScene) behaviorBlueHitsRedBullet(source *tanksutil.Object, dt float
 			s.g.redScore++
 			s.phase = phaseRedVictory
 			s.onVictory("Red", colornames.Indianred)
+			break
 		}
 	}
 }
