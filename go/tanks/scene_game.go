@@ -329,7 +329,9 @@ func (s *gameScene) spawnBlueShots() {
 	s.layers[layerBullets].Add(blueBullet1)
 	s.layers[layerBullets].Add(blueBullet2)
 
-	s.cannonSFX.Play()
+	if !s.g.muted {
+		s.cannonSFX.Play()
+	}
 }
 
 func (s *gameScene) spawnRedShots() {
@@ -353,7 +355,9 @@ func (s *gameScene) spawnRedShots() {
 	}
 	s.layers[layerBullets].Add(redBullet)
 
-	s.cannonSFX.Play()
+	if !s.g.muted {
+		s.cannonSFX.Play()
+	}
 }
 
 func (s *gameScene) behaviorRemoveOutOfBounds(source *tempura.Object, dt float64) {
