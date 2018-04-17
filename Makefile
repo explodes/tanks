@@ -31,14 +31,14 @@ android-lib: res
 android: enable-debug android-lib
 	cd ./android; ./gradlew ':app:installDebug'
 	mkdir -p ./build || true
-	cp ./android/app/build/outputs/apk/app-debug.apk ./build/tanks-debug.apk
+	cp ./android/app/build/outputs/apk/debug/app-debug.apk ./build/tanks-debug.apk
 	adb shell am start -n io.explod.android.eb1/io.explod.android.eb1.MainActivity
 
 # release: build
 android-release: disable-debug android-lib
 	cd ./android; ./gradlew ':app:assembleRelease'
 	mkdir -p ./build || true
-	cp ./android/app/build/outputs/apk/app-release-unsigned.apk ./build/tanks-release-unsigned.apk
+	cp ./android/app/build/outputs/apk/release/app-release-unsigned.apk ./build/tanks-release-unsigned.apk
 
 ## +-+-+ WEB +-+-+ ##
 

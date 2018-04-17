@@ -8,5 +8,5 @@ const (
 	//
 	// The default state should be "true" for source control, but
 	// all builds should specify their debug mode.
-	debug = true
+	debug = false
 )

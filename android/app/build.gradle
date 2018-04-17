@@ -26,7 +26,7 @@ android.sourceSets {
 }
 
 dependencies {
-    compile project(':tanklib')
+    implementation project(':tanklib')
 
-    compile 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
 }
