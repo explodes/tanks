@@ -1,4 +1,4 @@
-package io.explod.android.eb1;
+package io.explod.android.minigames;
 
 import android.opengl.GLSurfaceView;
 import android.support.v7.app.AppCompatActivity;

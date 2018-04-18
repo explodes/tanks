@@ -32,7 +32,7 @@ android: enable-debug android-lib
 	cd ./android; ./gradlew ':app:installDebug'
 	mkdir -p ./build || true
 	cp ./android/app/build/outputs/apk/debug/app-debug.apk ./build/tanks-debug.apk
-	adb shell am start -n io.explod.android.eb1/io.explod.android.eb1.MainActivity
+	adb shell am start -n io.explod.android.minigames/io.explod.android.minigames.MainActivity
 
 # release: build
 android-release: disable-debug android-lib
