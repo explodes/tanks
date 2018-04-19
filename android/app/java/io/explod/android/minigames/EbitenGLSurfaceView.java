@@ -95,7 +95,7 @@ public class EbitenGLSurfaceView extends GLSurfaceView {
                 Mobile.start(pxToDp(getScaleInPx()));
             }
         } catch (Exception e) {
-            Log.e("Go Error", e.toString());
+            Log.e("Game Error", e.toString());
         }
     }
 
