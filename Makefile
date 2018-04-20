@@ -22,10 +22,21 @@ enable-debug:
 disable-debug:
 	sed -i.bak 's/debug = true/debug = false/g' ./go/tanks/config.go
 
+## +-+-+ GO DEPS +-+-+ ##
+
+go-deps:
+	go get -u -v github.com/jteeuwen/go-bindata/...
+	go get -u -v golang.org/x/mobile/cmd/gomobile
+	go get -u -v golang.org/x/mobile/cmd/gobind
+
+go-prep:
+	gomobile init
+
+
 ## +-+-+ ANDROID +-+-+ ##
 
 android-lib: res
-	gomobile bind -target android -javapkg io.explod.android -o ./android/tanklib/tankslib.aar github.com/explodes/tanks/go/cmd/mobile
+	CGO_ENABLED=1 gomobile bind -target android -javapkg io.explod.android -o ./android/tanklib/tankslib.aar github.com/explodes/tanks/go/cmd/mobile
 
 # debug: build & run
 android: enable-debug android-lib
