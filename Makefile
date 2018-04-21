@@ -3,24 +3,24 @@
 ## +-+-+ STANDARD +-+-+ ##
 
 clean-res:
-	rm ./go/tanks/res/bindata.go || true
+	rm ./go/res/bindata.go || true
 
 clean-build:
 	find . -type d -name build | xargs -n1 rm -rf
-	rm ./go/tanks/config.go.bak || true
+	rm ./go/core/gen.go.bak || true
 	rm ./android/tanklib/tankslib.aar || true
 	rm ./android/tanklib/tankslib-sources.jar || true
 
 clean: enable-debug clean-res clean-build
 
 res: clean-res
-	cd ./go/tanks/resources; $(GOPATH)/bin/go-bindata -nocompress -o ../res/bindata.go -pkg res ./...
+	cd ./go/resources; $(GOPATH)/bin/go-bindata -nocompress -o ../res/bindata.go -pkg res ./...
 
 enable-debug:
-	sed -i.bak 's/debug = false/debug = true/g' ./go/tanks/config.go
+	sed -i.bak 's/Debug = false/Debug = true/g' ./go/core/gen.go
 
 disable-debug:
-	sed -i.bak 's/debug = true/debug = false/g' ./go/tanks/config.go
+	sed -i.bak 's/Debug = true/Debug = false/g' ./go/core/gen.go
 
 ## +-+-+ GO DEPS +-+-+ ##
 
@@ -28,6 +28,7 @@ go-deps:
 	go get -u -v github.com/jteeuwen/go-bindata/...
 	go get -u -v golang.org/x/mobile/cmd/gomobile
 	go get -u -v golang.org/x/mobile/cmd/gobind
+	go get -u github.com/gopherjs/gopherjs
 
 go-prep:
 	gomobile init
@@ -56,11 +57,11 @@ android-release: disable-debug android-lib
 # debug: build & run
 web: enable-debug res
 	google-chrome http://localhost:8080
-	gopherjs serve -m github.com/explodes/tanks/go/cmd/app
+	CGO_ENABLED=1 gopherjs serve -m github.com/explodes/tanks/go/cmd/app
 
 # release: build
 web-release: disable-debug res
-	gopherjs build -m -q -o ./build/tanks.js github.com/explodes/tanks/go/cmd/app
+	CGO_ENABLED=1 gopherjs build -m -q -o ./build/tanks.js github.com/explodes/tanks/go/cmd/app
 
 ## +-+-+ LINUX +-+-+ ##
 

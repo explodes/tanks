@@ -13,12 +13,13 @@ import (
 
 	"strconv"
 
+	"github.com/explodes/tanks/go/core"
 	"github.com/explodes/tempura"
 	"golang.org/x/image/colornames"
 	"golang.org/x/image/font"
 )
 
-var _ Scene = (*gameScene)(nil)
+var _ core.Scene = (*gameScene)(nil)
 
 type Phase uint8
 
@@ -96,29 +97,31 @@ type gameScene struct {
 	layers tempura.Layers
 }
 
-func NewGameScene(game *Game) (Scene, error) {
-	cannonSFX, err := game.loader.SFX(game.audioContext, "wav", "sound/tank.wav")
+func NewGameScene(game *Game) (core.Scene, error) {
+	loader := game.context.Loader()
+
+	cannonSFX, err := loader.SFX(game.context.AudioContext(), "wav", "sound/tank.wav")
 	if err != nil {
 		return nil, err
 	}
 
-	messageFace, err := game.loader.Face("fonts/DampfPlatzs.ttf", 42)
+	messageFace, err := loader.Face("fonts/DampfPlatzs.ttf", 42)
 	if err != nil {
 		return nil, err
 	}
 
-	shotImage, err := game.loader.EbitenImage("images/shot.png", ebiten.FilterDefault)
+	shotImage, err := loader.EbitenImage("images/shot.png", ebiten.FilterDefault)
 	if err != nil {
 		return nil, err
 	}
 	shotDrawable := tempura.NewImageDrawable(shotImage)
 
-	dirtImage, err := game.loader.EbitenImage("images/dirt.jpg", ebiten.FilterDefault)
+	dirtImage, err := loader.EbitenImage("images/dirt.jpg", ebiten.FilterDefault)
 	if err != nil {
 		return nil, err
 	}
 
-	tanksImage, err := game.loader.EbitenImage("images/tanks.png", ebiten.FilterDefault)
+	tanksImage, err := loader.EbitenImage("images/tanks.png", ebiten.FilterDefault)
 	if err != nil {
 		return nil, err
 	}
@@ -142,7 +145,7 @@ func NewGameScene(game *Game) (Scene, error) {
 
 	bluePlayer := &tempura.Object{
 		Tag:       tagBluePlayer,
-		Pos:       tempura.V(100, ScreenHeight/2-tankHeight/2),
+		Pos:       tempura.V(100, core.ScreenHeight/2-tankHeight/2),
 		Size:      tempura.V(tankWidth, tankHeight),
 		Drawable:  blueTankDrawable,
 		Rot:       rotBlue,
@@ -161,7 +164,7 @@ func NewGameScene(game *Game) (Scene, error) {
 
 	redPlayer := &tempura.Object{
 		Tag:       tagRedPlayer,
-		Pos:       tempura.V(ScreenWidth-100-tankWidth, ScreenHeight/2-tankHeight/2),
+		Pos:       tempura.V(core.ScreenWidth-100-tankWidth, core.ScreenHeight/2-tankHeight/2),
 		Size:      tempura.V(tankWidth, tankHeight),
 		Drawable:  redTankDrawable,
 		Rot:       rotRed,
@@ -180,7 +183,7 @@ func NewGameScene(game *Game) (Scene, error) {
 
 	dirt := &tempura.Object{
 		Tag:      tagBackground,
-		Size:     tempura.V(ScreenWidth, ScreenHeight),
+		Size:     tempura.V(core.ScreenWidth, core.ScreenHeight),
 		Drawable: tempura.NewImageDrawable(dirtImage),
 	}
 	s.layers[layerBackground].Add(dirt)
@@ -236,7 +239,7 @@ func (s *gameScene) Draw(image *ebiten.Image) {
 		if s.message == nil {
 			return
 		}
-		s.message.Draw(image, ScreenWidth/2, ScreenHeight/2+s.message.H/2, tempura.AlignCenter)
+		s.message.Draw(image, core.ScreenWidth/2, core.ScreenHeight/2+s.message.H/2, tempura.AlignCenter)
 	}
 }
 
@@ -247,25 +250,25 @@ func (s *gameScene) reflectInBounds(source *tempura.Object, dt float64) {
 		source.Velocity = tempura.V(-source.Velocity.X, source.Velocity.Y)
 		source.Rot = source.Velocity.Angle()
 		source.Pos = tempura.V(0, source.Pos.Y)
-	case objBounds.Max.X >= ScreenWidth:
+	case objBounds.Max.X >= core.ScreenWidth:
 		source.Velocity = tempura.V(-source.Velocity.X, source.Velocity.Y)
 		source.Rot = source.Velocity.Angle()
-		source.Pos = tempura.V(ScreenWidth-source.Size.X, source.Pos.Y)
+		source.Pos = tempura.V(core.ScreenWidth-source.Size.X, source.Pos.Y)
 	}
 	switch {
 	case objBounds.Min.Y <= 0:
 		source.Velocity = tempura.V(source.Velocity.X, -source.Velocity.Y)
 		source.Rot = source.Velocity.Angle()
 		source.Pos = tempura.V(source.Pos.X, 0)
-	case objBounds.Max.Y >= ScreenHeight:
+	case objBounds.Max.Y >= core.ScreenHeight:
 		source.Velocity = tempura.V(source.Velocity.X, -source.Velocity.Y)
 		source.Rot = source.Velocity.Angle()
-		source.Pos = tempura.V(source.Pos.X, ScreenHeight-source.Size.Y)
+		source.Pos = tempura.V(source.Pos.X, core.ScreenHeight-source.Size.Y)
 	}
 }
 
 func (s *gameScene) behaviorBlueRotateOnButton(source *tempura.Object, dt float64) {
-	if s.g.input.BlueRotate() {
+	if BlueRotate() {
 		// rotate
 		source.Rot += tempura.DegToRad(-tankRotatesPerSecond*360) * dt
 		s.blueShotDelay = 0
@@ -280,7 +283,7 @@ func (s *gameScene) behaviorBlueRotateOnButton(source *tempura.Object, dt float6
 }
 
 func (s *gameScene) behaviorRedRotateOnButton(source *tempura.Object, dt float64) {
-	if s.g.input.RedRotate() {
+	if RedRotate() {
 		// rotate
 		source.Rot += tempura.DegToRad(-tankRotatesPerSecond*360) * dt
 		s.redShotDelay = 0
@@ -329,7 +332,7 @@ func (s *gameScene) spawnBlueShots() {
 	s.layers[layerBullets].Add(blueBullet1)
 	s.layers[layerBullets].Add(blueBullet2)
 
-	if !s.g.muted {
+	if !s.g.context.Muted() {
 		s.cannonSFX.Play()
 	}
 }
@@ -355,13 +358,13 @@ func (s *gameScene) spawnRedShots() {
 	}
 	s.layers[layerBullets].Add(redBullet)
 
-	if !s.g.muted {
+	if !s.g.context.Muted() {
 		s.cannonSFX.Play()
 	}
 }
 
 func (s *gameScene) behaviorRemoveOutOfBounds(source *tempura.Object, dt float64) {
-	if !tempura.Collision(source.Bounds(), ScreenBounds) {
+	if !tempura.Collision(source.Bounds(), core.ScreenBounds) {
 		s.layers[layerBullets].Remove(source)
 	}
 }

@@ -1,18 +1,20 @@
 package mobile
 
 import (
-	"github.com/explodes/tanks/go/tanks"
+	_ "github.com/explodes/tanks/go/cmd/games_registry"
+	"github.com/explodes/tanks/go/core"
+	"github.com/explodes/tanks/go/overworld"
 	"github.com/hajimehoshi/ebiten/mobile"
 )
 
 var (
 	running bool
-	game    *tanks.Game
+	game    *overworld.Overworld
 )
 
 const (
-	ScreenWidth  = tanks.ScreenWidth
-	ScreenHeight = tanks.ScreenHeight
+	ScreenWidth  = core.ScreenWidth
+	ScreenHeight = core.ScreenHeight
 )
 
 // IsRunning returns a boolean value indicating whether the game is running.
@@ -24,11 +26,11 @@ func IsRunning() bool {
 func Start(scale float64) error {
 	running = true
 	var err error
-	game, err = tanks.NewGame()
+	game, err = overworld.NewOverworld()
 	if err != nil {
 		return err
 	}
-	if err := mobile.Start(game.Update, ScreenWidth, ScreenHeight, scale, tanks.Title); err != nil {
+	if err := mobile.Start(game.Update, ScreenWidth, ScreenHeight, scale, core.Title); err != nil {
 		return err
 	}
 	return nil
@@ -49,15 +51,4 @@ func Resume() {
 	if game != nil {
 		game.Resume()
 	}
-}
-
-// UpdateTouchesOnAndroid dispatches touch events on Android.
-func UpdateTouchesOnAndroid(action int, id int, x, y int) {
-	mobile.UpdateTouchesOnAndroid(action, id, x, y)
-}
-
-// UpdateTouchesOnIOS dispatches touch events on iOS.
-func UpdateTouchesOnIOS(phase int, ptr int64, x, y int) {
-	// Prepare this function if you also want to make your game run on iOS.
-	mobile.UpdateTouchesOnIOS(phase, ptr, x, y)
 }

@@ -8,12 +8,13 @@ import (
 	"image/color"
 	"math/rand"
 
+	"github.com/explodes/tanks/go/core"
 	"github.com/explodes/tempura"
 	"github.com/hajimehoshi/ebiten/text"
 	"golang.org/x/image/colornames"
 )
 
-var _ Scene = (*titleScene)(nil)
+var _ core.Scene = (*titleScene)(nil)
 
 var (
 	textColors = []color.Color{
@@ -34,21 +35,22 @@ type titleScene struct {
 	scoreboard   *tempura.Texts
 }
 
-func NewTitleScene(game *Game) (Scene, error) {
+func NewTitleScene(game *Game) (core.Scene, error) {
+	loader := game.context.Loader()
 
-	titleFace, err := game.loader.Face("fonts/DampfPlatz.ttf", 240)
+	titleFace, err := loader.Face("fonts/DampfPlatz.ttf", 240)
 	if err != nil {
 		return nil, err
 	}
 
-	instructionsFace, err := game.loader.Face("fonts/Lekton-Regular.ttf", 12)
+	instructionsFace, err := loader.Face("fonts/Lekton-Regular.ttf", 12)
 	if err != nil {
 		return nil, err
 	}
 
 	var scoreboard *tempura.Texts
 	if game.redScore != 0 || game.blueScore != 0 {
-		face, err := game.loader.Face("fonts/BlackKnightFLF.ttf", 36)
+		face, err := loader.Face("fonts/BlackKnightFLF.ttf", 36)
 		if err != nil {
 			return nil, err
 		}
@@ -72,7 +74,7 @@ func NewTitleScene(game *Game) (Scene, error) {
 func (s *titleScene) Update(dt float64) error {
 	s.time += dt
 
-	if s.g.input.Begin() {
+	if Begin() {
 		return s.g.SetNewScene(NewGameScene)
 	}
 
@@ -96,7 +98,7 @@ func (s *titleScene) drawScoreboard(image *ebiten.Image) {
 	}
 
 	width := s.scoreboard.SingleLineWidth()
-	x := ScreenWidth/2 - width/2
+	x := core.ScreenWidth/2 - width/2
 
 	for i, t := range *s.scoreboard {
 		dx, dy := x, vpad
@@ -122,14 +124,14 @@ func (s *titleScene) drawInstructions(image *ebiten.Image) {
 		return
 	}
 	height := s.instructions.MultiLineHeight(space)
-	s.instructions.DrawLines(image, space, ScreenWidth/2, ScreenHeight-height-vpad, tempura.AlignCenter)
+	s.instructions.DrawLines(image, space, core.ScreenWidth/2, core.ScreenHeight-height-vpad, tempura.AlignCenter)
 }
 
 func (s *titleScene) drawTitle(image *ebiten.Image) {
 	const jit = 3
 	for _, textColor := range textColors {
 		dx, dy := jitter(jit), jitter(jit)
-		text.Draw(image, s.title.Text, s.title.Face, ScreenWidth/2-s.title.W/2+dx, ScreenHeight/2+s.title.H/2+dy, textColor)
+		text.Draw(image, s.title.Text, s.title.Face, core.ScreenWidth/2-s.title.W/2+dx, core.ScreenHeight/2+s.title.H/2+dy, textColor)
 	}
 }
 

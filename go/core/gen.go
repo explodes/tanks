@@ -1,4 +1,4 @@
-package tanks
+package core
 
 const (
 	// -ldflags "-X main.Debug=false" or "-X mobile.Debug=false"
@@ -8,5 +8,5 @@ const (
 	//
 	// The default state should be "true" for source control, but
 	// all builds should specify their debug mode.
-	debug = true
+	Debug = true
 )

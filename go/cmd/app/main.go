@@ -3,17 +3,19 @@ package main
 import (
 	"log"
 
-	"github.com/explodes/tanks/go/tanks"
+	_ "github.com/explodes/tanks/go/cmd/games_registry"
+	"github.com/explodes/tanks/go/core"
+	"github.com/explodes/tanks/go/overworld"
 	"github.com/hajimehoshi/ebiten"
 )
 
 func main() {
-	game, err := tanks.NewGame()
+	game, err := overworld.NewOverworld()
 	if err != nil {
 		log.Fatal(err)
 	}
 	ebiten.SetRunnableInBackground(true)
-	if err := ebiten.Run(game.Update, tanks.ScreenWidth, tanks.ScreenHeight, 1, tanks.Title); err != nil {
+	if err := ebiten.Run(game.Update, core.ScreenWidth, core.ScreenHeight, 1, core.Title); err != nil {
 		log.Fatal(err)
 	}
 }
