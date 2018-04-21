@@ -14,7 +14,7 @@ clean-build:
 clean: enable-debug clean-res clean-build
 
 res: clean-res
-	cd ./go/resources; $(GOPATH)/bin/go-bindata -nocompress -o ../res/bindata.go -pkg res ./...
+	cd ./resources; $(GOPATH)/bin/go-bindata -nocompress -o ../go/res/bindata.go -pkg res ./...
 
 enable-debug:
 	sed -i.bak 's/Debug = false/Debug = true/g' ./go/core/gen.go
