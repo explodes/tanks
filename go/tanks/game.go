@@ -3,7 +3,6 @@ package tanks
 import (
 	"github.com/explodes/tanks/go/core"
 	"github.com/explodes/tempura"
-	"github.com/hajimehoshi/ebiten"
 	"github.com/hajimehoshi/ebiten/audio"
 )
 
@@ -16,8 +15,8 @@ const (
 var _ core.Game = (*Game)(nil)
 
 type Game struct {
+	core.GameSceneLoop
 	context core.Context
-	scene   core.Scene
 
 	redScore  int
 	blueScore int
@@ -27,7 +26,7 @@ type Game struct {
 
 func NewGame(context core.Context) (core.Game, error) {
 	if core.Debug {
-		defer tempura.LogStart("Tanks game init").End()
+		defer tempura.LogStart("Tanks init").End()
 	}
 	bgm, err := context.Loader().AudioLoop(context.AudioContext(), "mp3", "music/octane.mp3")
 	if err != nil {
@@ -51,34 +50,13 @@ func NewGame(context core.Context) (core.Game, error) {
 
 func (g *Game) SetNewScene(factory func(*Game) (scene core.Scene, err error)) error {
 	if core.Debug {
-		defer tempura.LogStart("Set new tank scene").End()
+		defer tempura.LogStart("New tanks scene").End()
 	}
 	scene, err := factory(g)
 	if err != nil {
 		return err
 	}
 	return g.SetScene(scene)
-}
-
-func (g *Game) SetScene(scene core.Scene) error {
-	core.DebugLog("new tank scene: %T", scene)
-	g.scene = scene
-	return nil
-}
-
-func (g *Game) Update(dt float64) error {
-	if g.scene != nil {
-		if err := g.scene.Update(dt); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (g *Game) Draw(image *ebiten.Image) {
-	if g.scene != nil {
-		g.scene.Draw(image)
-	}
 }
 
 func (g *Game) OnMuted(muted bool) {
