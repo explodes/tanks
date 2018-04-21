@@ -1,3 +1,5 @@
+// +build ios
+
 package mobile
 
 import "github.com/hajimehoshi/ebiten/mobile"
