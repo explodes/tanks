@@ -26,7 +26,7 @@ type Game struct {
 
 func NewGame(context core.Context) (core.Game, error) {
 	if core.Debug {
-		defer tempura.LogStart("Tanks init").End()
+		defer tempura.LogStart("%s init", Title).End()
 	}
 	bgm, err := context.Loader().AudioLoop(context.AudioContext(), "mp3", "music/octane.mp3")
 	if err != nil {
@@ -50,7 +50,7 @@ func NewGame(context core.Context) (core.Game, error) {
 
 func (g *Game) SetNewScene(factory func(*Game) (scene core.Scene, err error)) error {
 	if core.Debug {
-		defer tempura.LogStart("New tanks scene").End()
+		defer tempura.LogStart("New %s scene", Title).End()
 	}
 	scene, err := factory(g)
 	if err != nil {
