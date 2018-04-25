@@ -29,6 +29,10 @@ func NewTitleScene(game *Game) (core.Scene, error) {
 	if err != nil {
 		return nil, err
 	}
+	shipwreckImage, err := loader.EbitenImage("images/ship_blue.png", ebiten.FilterDefault)
+	if err != nil {
+		return nil, err
+	}
 
 	layers := tempura.NewLayers(numLayers)
 
@@ -37,18 +41,37 @@ func NewTitleScene(game *Game) (core.Scene, error) {
 		layers: layers,
 	}
 
-	layers[layerMenu].Add(&tempura.Object{
-		Tag:      "tanks",
-		Drawable: tempura.NewImageDrawable(tanksImage),
-		Pos:      tempura.V(core.ScreenWidth*0.5-float64(tanksImage.Bounds().Dx())*0.25, core.ScreenHeight*0.5-float64(tanksImage.Bounds().Dy())*0.25),
-		Size:     tempura.V(float64(tanksImage.Bounds().Dx())*0.5, float64(tanksImage.Bounds().Dy())*0.5),
-	})
+	menu := []struct {
+		name  string
+		image *ebiten.Image
+	}{
+		{"tanks", tanksImage},
+		{"shipwreck", shipwreckImage},
+	}
+
+	w := core.ScreenWidth / float64(len(menu)) * 0.75
+	h := w
+
+	dx := w * 1.10
+
+	x := (core.ScreenWidth - (float64(len(menu)) * dx)) * 0.5
+	y := core.ScreenHeight*0.5 - h*0.5
+
+	for _, m := range menu {
+		layers[layerMenu].Add(&tempura.Object{
+			Tag:      m.name,
+			Drawable: tempura.NewImageDrawable(m.image),
+			Pos:      tempura.V(x, y),
+			Size:     tempura.V(w, h),
+		})
+		x += dx
+	}
 
 	return titleScene, nil
 }
 
 func (s *titleScene) Update(dt float64) error {
-	if obj := s.firstTouch(); obj != nil {
+	if obj := s.menuTouch(); obj != nil {
 		return &core.ChangeGameError{Game: obj.Tag}
 	}
 	return nil
@@ -65,27 +88,25 @@ func objectBoundsContainsPoint(obj *tempura.Object, x, y float64) bool {
 		obj.Pos.Y+obj.Size.Y >= y
 }
 
-func (s *titleScene) firstTouch() *tempura.Object {
+func (s *titleScene) menuTouch() *tempura.Object {
 	for _, touch := range ebiten.Touches() {
 		x, y := touch.Position()
-		if obj := s.firstTouchAt(float64(x), float64(y)); obj != nil {
+		if obj := s.menuTouchAt(float64(x), float64(y)); obj != nil {
 			return obj
 		}
 	}
 	if inpututil.IsMouseButtonJustPressed(ebiten.MouseButtonLeft) {
 		x, y := ebiten.CursorPosition()
-		return s.firstTouchAt(float64(x), float64(y))
+		return s.menuTouchAt(float64(x), float64(y))
 	}
 	return nil
 }
 
-func (s *titleScene) firstTouchAt(x, y float64) *tempura.Object {
+func (s *titleScene) menuTouchAt(x, y float64) *tempura.Object {
 	xf, yf := float64(x), float64(y)
-	core.DebugLog("click at %f, %f", x, y)
-	iter := s.layers.IteratorTop()
+	iter := s.layers[layerMenu].Iterator()
 	for obj, ok := iter(); ok; obj, ok = iter() {
 		if objectBoundsContainsPoint(obj, xf, yf) {
-			core.DebugLog("clicked object %v", obj)
 			return obj
 		}
 	}
