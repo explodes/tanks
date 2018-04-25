@@ -62,7 +62,7 @@ func (o *Overworld) Muted() bool {
 }
 
 func (o *Overworld) startOverworldGame() error {
-	return o.LoadGame("tanks")
+	return o.LoadGame("title")
 }
 
 func (o *Overworld) LoadGame(name string) error {
@@ -102,13 +102,17 @@ func (o *Overworld) Update(image *ebiten.Image) error {
 		o.game.OnMuted(o.muted)
 	}
 	if o.game != nil {
-		if err := o.game.Update(dt); err == core.GameTermination {
+		err := o.game.Update(dt)
+		if err != nil {
 			o.closeGame()
-			return o.startOverworldGame()
-		} else if err != nil {
-			o.closeGame()
+			if err == core.GameTermination {
+				return o.startOverworldGame()
+			} else if change, ok := err.(*core.ChangeGameError); ok {
+				return o.LoadGame(change.Game)
+			}
 			return err
 		}
+
 		if !ebiten.IsRunningSlowly() {
 			o.game.Draw(image)
 		}
