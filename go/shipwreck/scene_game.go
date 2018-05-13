@@ -81,7 +81,7 @@ func (s *gameScene) Update(dt float64) error {
 }
 
 func (s *gameScene) Draw(image *ebiten.Image) {
-	s.layers.Draw(image)
+	s.layers.Draw(nil, image)
 }
 
 func newBackground() (*tempura.Object, error) {

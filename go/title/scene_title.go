@@ -78,7 +78,7 @@ func (s *titleScene) Update(dt float64) error {
 }
 
 func (s *titleScene) Draw(image *ebiten.Image) {
-	s.layers.Draw(image)
+	s.layers.Draw(nil, image)
 }
 
 func objectBoundsContainsPoint(obj *tempura.Object, x, y float64) bool {
