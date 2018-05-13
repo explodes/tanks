@@ -62,7 +62,7 @@ func (o *Overworld) Muted() bool {
 }
 
 func (o *Overworld) startOverworldGame() error {
-	return o.LoadGame("title")
+	return o.LoadGame("tanks") // TODO: "title" for overworld
 }
 
 func (o *Overworld) LoadGame(name string) error {
